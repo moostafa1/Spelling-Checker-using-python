@@ -8,6 +8,22 @@ import requests
 
 
 class Spell_Checker:
+    """ Spell_Checker class for:
+
+    - Loading dictionary of words
+    - Storing this dictionary in a suitable data structure
+    - Taking an input word and return the nearest 4 words if this word is not in the dictionary
+    - Taking an input word and add this word to the dictionary
+    - Removing an input word from the dictionary
+    - specify the time and space complexity for each operation
+
+
+
+    Attributes:
+        dictionary_fname (str) the name of the dictionary file
+        password (str) the admin. password for adding and removing form dictionary
+
+    """
     def __init__(self, dictionary_fname = "dictionary.txt"):
         self.dictionary = dictionary_fname
         self.password = "authenticated_1"
@@ -18,6 +34,13 @@ class Spell_Checker:
 
     #@profile(precision = 4)
     def read_text_dictionary(self):
+        """Function to read the dictionary file and stores it in a list.
+        Args:
+            None
+        Returns:
+            a_to_z (list): contains the dictionary keys form [a-Z]
+            unique_dictionary (list): contains all the words form [a-z]
+        """
         with open(self.dictionary) as f:
             dictionary = f.read().split('\n')[:-1]
         unique_dictionary = list(sorted(set(dictionary)))
@@ -30,6 +53,14 @@ class Spell_Checker:
 
     #@profile(precision = 4)
     def words_per_letter(self, letter_to_words):
+        """counts the total words in the dictionary, also the number of words
+           for each letter.
+        Args:
+            None
+        Returns:
+            dict_of_words_num (dict): number of words corresponding to each starting letter
+            words_count (int): total number of words
+        """
         words_count = 0
         dict_of_words_num = {}
 
@@ -47,6 +78,12 @@ class Spell_Checker:
 
     #@profile(precision = 4)
     def plotting_letters_num(self, letter_to_words):
+        """plot each letter and the number of letters corresponding to it in bars.
+        Args:
+            letter_to_words (dict): number of words corresponding to each starting letter
+        Returns:
+            None
+        """
         letters = list(letter_to_words.keys())
         num_of_words = list(letter_to_words.values())
 
@@ -57,7 +94,18 @@ class Spell_Checker:
 
 
     #@profile(precision = 4)
-    def create_dictionary_of_words(self, print_status = False, plot = False):   # , a_to_z, dictionary
+    def create_dictionary_of_words(self, print_status = False, plot = False):
+        """create the dictionary where each key is letter from [a-z] and the value
+           for each of them is a list of all the words starts with this letter.
+        Optional Args:
+            print_status (bool): prints the number of words corresponding to each starting letter
+                                 (default = False)
+            plot (bool): works only when print_status is set to (True)
+                         plot each letter and the number of letters corresponding to it in bars.
+                         (default = False)
+        Returns:
+            None
+        """
         a_to_z, dictionary = self.read_text_dictionary()
         sorted_lst_of_words = sorted(dictionary)
         letter_to_words = {}
@@ -83,11 +131,19 @@ class Spell_Checker:
 
     #@profile(precision = 4)
     def spell_checking(self, letter_to_words):
+        """check if the input word(s) is in the dictionary, else it prints the most
+           similar 4 words to it.
+        Args:
+            letter_to_words (list): list of input word(s)
+        Returns:
+            general_similarity (list): most similar 4 words to the inputted word(s)
+        """
         search_words = input("Enter the word(s) you want to search for: ").split(",")
         search_words = [word.lower().strip() for word in search_words]
         print(f"you entered: {search_words}")
 
         # letter_to_words = self.create_dictionary_of_words()
+        general_similarity = []
         for search_word in search_words:
             if search_word in letter_to_words[search_word[0]]:
                 print(f"Word ({search_word}) already found in the dictionary in the ({letter_to_words[search_word[0]].index(search_word) + 1}) postition of letter ({search_word[0]})\n\n")
@@ -96,13 +152,21 @@ class Spell_Checker:
                 for i in range(1, 5):
                     similar_words = [w for w in letter_to_words[search_word[0]] if enchant.utils.levenshtein(w, search_word) == i]
                     all_similar_words.extend(similar_words)
+                general_similarity.append(all_similar_words[:4])
                 print(f"Word ({search_word}) not found\nThe nearest words for it are: {all_similar_words[:4]}\n\n")
+        return general_similarity
 
 
 
 
     #@profile(precision = 4)
     def updating_dictionary(self, original_letter_to_words):
+        """adding new word(s) to the input dictionary if words aren't already inside it.
+        Args:
+            original_letter_to_words (dict): all words corresponding to each starting letter
+        Returns:
+            letter_to_words (dict): new copy of the original dictionary that have updated the data
+        """
         flag = 1
         search_words = input("Enter the word(s) you want to insert: ").split(",")
         search_words = [word.lower().strip() for word in search_words]
@@ -134,6 +198,12 @@ class Spell_Checker:
 
     #@profile(precision = 4)
     def remove_vocab(self, original_letter_to_words):
+        """removing existing word(s) from the input dictionary if words are already inside it.
+        Args:
+            original_letter_to_words (dict): all words corresponding to each starting letter
+        Returns:
+            letter_to_words (dict): new copy of the original dictionary that have updated the data
+        """
         flag = 1
         search_words = input("Enter the word(s) you want to remove: ").split(",")
         search_words = [word.lower().strip() for word in search_words]
@@ -165,6 +235,13 @@ class Spell_Checker:
 
     #@profile(precision = 4)
     def save_dictionary_dict(self, letter_to_words, fname):
+        """saving the input dictionary.
+        Args:
+            letter_to_words (dict): all words corresponding to each starting letter
+            fname (str): name of the file to save in
+        Returns:
+            None
+        """
         dictionary = []
         for k in letter_to_words:
             dictionary.append(k)
@@ -179,6 +256,14 @@ class Spell_Checker:
 
     @profile(precision = 4)
     def main(self, flag = ["NULL"], fname = "saved_dic.txt"):
+        """allow executing any of the above methods and prints the time and space
+           complexity for each of them.
+        Args:
+            fname (str): name of the file to save in.
+                        ( default = "saved_dic.txt")
+        Returns:
+            None
+        """
         flag = [word.lower() for word in flag]
 
         if "create" in flag:
